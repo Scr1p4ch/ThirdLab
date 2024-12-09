@@ -11,13 +11,30 @@ enum class flags : char {
     NEW_ROOT
 };
 
+template <typename T>
+class BTree;
 
 template <typename T>
-struct BNode {
+class BNode {
     BNode<T>** child;
     T* key;
     unsigned int size;
     bool leaf;
+
+    friend class BTree<T>;
+
+public:
+    T* getKey() {
+        return key;
+    }
+
+    const T* getKey() const {
+        return key;
+    }
+
+    unsigned int getSize() const {
+        return size;
+    }
 };
 
 
@@ -82,7 +99,7 @@ template <typename T>
 BTree<T>::BTree(unsigned t, bool (*compare)(const T &, const T &)) {
     minDegree = t;
     lessThan = compare;
-    root = new BNode<T>();
+    root = new BNode<T>;
     initializeNode(root);
     root->leaf = true;
 }
@@ -219,8 +236,8 @@ T BTree<T>::searchKey(T k) {
 template <typename T>
 void BTree<T>::initializeNode(BNode<T>* x) {
     x->size = 0;
-    x->key = new T[2 * minDegree - 1]();
-    x->child = new BNode<T>*[2 * minDegree]();
+    x->key = new T[2 * minDegree - 1];
+    x->child = new BNode<T>*[2 * minDegree];
 }
 
 template <typename T>
@@ -278,7 +295,7 @@ T BTree<T>::nodeDelete(BNode<T>* x, unsigned index) {
 template <typename T>
 void BTree<T>::splitChild(BNode<T>* x, int i) {
     BNode<T>* toSplit = x->child[i];
-    BNode<T>* newNode = new BNode<T>();
+    BNode<T>* newNode = new BNode<T>;
     initializeNode(newNode);
     newNode->leaf = toSplit->leaf;
     newNode->size = minDegree - 1;
