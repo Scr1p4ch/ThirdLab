@@ -12,39 +12,22 @@ enum class flags : char {
 };
 
 template <typename T>
-class BTree;
-
-template <typename T>
-class BNode {
-    BNode<T>** child;
-    T* key;
-    unsigned int size;
-    bool leaf;
-
-    friend class BTree<T>;
-
-public:
-    T* getKey() {
-        return key;
-    }
-
-    const T* getKey() const {
-        return key;
-    }
-
-    unsigned int getSize() const {
-        return size;
-    }
-};
-
-
-template <typename T>
 class BTree {
 private:
-    BNode<T>* root;
-    bool (*lessThan)(const T&, const T&);
-    unsigned minDegree;
 
+    template <typename U = T>
+    struct BNode {
+        BNode<U>** child;
+        U* key;
+        unsigned int size;
+        bool leaf;
+
+        BNode() : child(nullptr), key(nullptr), size(0u), leaf(false) {}
+    };
+
+    BNode<T>* root = nullptr;
+    bool (*lessThan)(const T&, const T&) = 0;
+    unsigned minDegree = 0u;
 public:
     BTree(unsigned, bool (*)(const T &, const T &));
 
@@ -54,25 +37,24 @@ public:
 
     T remove(T);
 
-    SimplePair<BNode<T>*, unsigned> search(T);
+    SimplePair<typename BTree<T>::BNode<T>*, unsigned> search(T);
 
     T searchKey(T);
 
-    void traverse() {
-        traverse_util(root);
-    }
-
-    void traverse_util(BNode<T>* x) {
+    void traverse(BNode<T>* x = nullptr) {
         int i;
+        if (!x) {
+            x = root;
+        }
         for (i = 0; i < x->size; ++i) {
             if (!x->leaf) {
-                traverse_util(x->child[i]);
+                traverse(x->child[i]);
             }
             std::cout << " " << x->key[i];
         }
 
         if (!x->leaf) {
-            traverse_util(x->child[i]);
+            traverse(x->child[i]);
         }
     }
 
@@ -202,7 +184,7 @@ T BTree<T>::remove(T k) {
 }
 
 template <typename T>
-SimplePair<BNode<T>*, unsigned> BTree<T>::search(T k) {
+SimplePair<typename BTree<T>::BNode<T>*, unsigned> BTree<T>::search(T k) {
     BNode<T>* x = root;
 
     while(true) {
@@ -379,5 +361,31 @@ flags BTree<T>::fixChildSize(BNode<T>* parent, unsigned index) {
 
     return flags::NOT_MODIFIED;
 }
+
+
+
+/*template <typename T>
+class BNode {
+    BNode<T>** child;
+    T* key;
+    unsigned int size;
+    bool leaf;
+
+    friend class BTree<T>;
+
+public:
+    T* getKey() {
+        return key;
+    }
+
+    const T* getKey() const {
+        return key;
+    }
+
+    unsigned int getSize() const {
+        return size;
+    }
+};
+*/
 
 #endif
