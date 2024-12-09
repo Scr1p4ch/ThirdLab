@@ -88,7 +88,7 @@ BTree<T>::BTree(unsigned t, bool (*compare)(const T &, const T &)) {
 }
 
 template <typename T>
-BTree<T>::~BTree<T>() {
+BTree<T>::~BTree() {
     freeNode(root);
 }
 
