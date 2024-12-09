@@ -26,10 +26,10 @@ private:
     };
 
     BNode<T>* root = nullptr;
-    bool (*lessThan)(const T&, const T&) = 0;
+    int (*comparator)(const T&, const T&) = 0;
     unsigned minDegree = 0u;
 public:
-    BTree(unsigned, bool (*)(const T &, const T &));
+    BTree(unsigned, int (*)(const T &, const T &));
 
     ~BTree();
 
@@ -78,9 +78,9 @@ private:
 
 
 template <typename T>
-BTree<T>::BTree(unsigned t, bool (*compare)(const T &, const T &)) {
+BTree<T>::BTree(unsigned t, int (*compare)(const T &, const T &)) {
     minDegree = t;
-    lessThan = compare;
+    comparator = compare;
     root = new BNode<T>;
     initializeNode(root);
     root->leaf = true;
@@ -106,14 +106,14 @@ void BTree<T>::insert(T k) {
     while (!curr->leaf)
     {
         int index = curr->size - 1;
-        while (index >= 0 && lessThan(k, curr->key[index])) {
+        while (index >= 0 && -1 == comparator(k, curr->key[index])) {
             index--;
         }
         index++;
 
         if (curr->child[index]->size == 2 * minDegree - 1) {
             splitChild(curr, index);
-            if (lessThan(curr->key[index], k)) {
+            if (-1 == comparator(curr->key[index], k)) {
                 index++;
             }
         }
@@ -131,7 +131,7 @@ T BTree<T>::remove(T k) {
     while(true) {
         unsigned i = findIndex(curr, k);
 
-        if (i < curr->size && !(lessThan(curr->key[i], k) || lessThan(k, curr->key[i]))) {
+        if (i < curr->size && !(-1 == comparator(curr->key[i], k) || -1 == comparator(k, curr->key[i]))) {
             T toReturn = curr->key[i];
 
             if (curr->leaf) {
@@ -190,7 +190,7 @@ SimplePair<typename BTree<T>::BNode<T>*, unsigned> BTree<T>::search(T k) {
     while(true) {
         unsigned i = findIndex(x, k);
 
-        if (i < x->size && !(lessThan(k, x->key[i]) || lessThan(x->key[i], k))) {
+        if (i < x->size && !(-1 == comparator(k, x->key[i]) || -1 == comparator(x->key[i], k))) {
             return SimplePair<BNode<T>*, unsigned>(x, i);
         }
 
@@ -237,7 +237,7 @@ void BTree<T>::freeNode(BNode<T>* x) {
 template <typename T>
 unsigned BTree<T>::findIndex(BNode<T>* x, T k) {
     unsigned i = 0;
-    while (i < x->size && lessThan(x->key[i], k)) {
+    while (i < x->size && -1 == comparator(x->key[i], k)) {
         ++i;
     }
     return i;
@@ -247,7 +247,7 @@ template <typename T>
 unsigned BTree<T>::nodeInsert(BNode<T>* x, T k) {
     int index;
 
-    for (index = x->size; index > 0 && lessThan(k, x->key[index - 1]); --index) {
+    for (index = x->size; index > 0 && -1 == comparator(k, x->key[index - 1]); --index) {
         x->key[index] = x->key[index - 1];
         x->child[index + 1] = x->child[index];
     }
