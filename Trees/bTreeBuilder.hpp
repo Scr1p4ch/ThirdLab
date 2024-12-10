@@ -5,6 +5,8 @@
 #include "../Sort/QuickSorter.h"
 #include "../Utility/PtrWrapper.h"
 #include "bTree.hpp"
+#include "bTreeForDict.hpp"
+#include "TypeFunctor.hpp"
 
 
 template <typename T>
@@ -41,6 +43,27 @@ struct bTreeBuilder {
     }
 };
 
+/*
+template <typename TKey, typename TElement>
+struct bTreeBuilderForDict {
+    PtrWrapper<bTreeForDict<TKey, TElement>> operator()(ArraySequence<TElement>& arr, unsigned int t, std::function<int(const TKey&, const TKey&)> compare = TypeFunctor<TKey>{}) {
+        auto treeToReturn = new bTreeForDict<TKey, TElement>(t, compare);
+        for (int i = 0; i < arr.getSize(); ++i) {
+            treeToReturn->insert(arr[i]);
+        }
+
+        return PtrWrapper<bTreeForDict<TKey, TElement>>(treeToReturn);
+    }
+
+    PtrWrapper<bTreeForDict<TKey, TElement>> operator()(TElement* arr, size_t size, unsigned int t, std::function<int(const TKey&, const TKey&)> compare = TypeFunctor<TKey>{}) {        
+        auto treeToReturn = new bTreeForDict<TKey, TElement>(t, compare);
+        for (int i = 0; i < size; ++i) {
+            treeToReturn->insert(arr[i]);
+        }
+
+        return PtrWrapper<bTreeBuilderForDict<TKey, TElement>>(treeToReturn);
+    }
+};*/
 
 
 #endif

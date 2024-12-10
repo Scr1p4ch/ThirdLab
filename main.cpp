@@ -1,7 +1,8 @@
 //#include "Trees/bTree.hpp"
 #include "Sort/Comparator.h"
-#include "Trees/bTreeBuilder.hpp"
+//#include "Trees/bTreeBuilder.hpp"
 //#include "Trees/IDictionary.hpp"
+#include "Trees/bTreeBuilder.hpp"
 #include "Trees/IDictionarySingle.hpp"
 #include "Trees/bTreeForDict.hpp"
 #include "Trees/TypeFunctor.hpp"
@@ -15,7 +16,6 @@
 
 int main() {
 
-    bTreeBuilder<int> builder;
     /*
     {
         ArraySequence<int> arr(100);
@@ -93,9 +93,11 @@ int main() {
             std::cout << "ok" << std::endl;
         }
 
-        std::cout << dict.ContainsKey(15) << std::endl;
+        std::cout << dict.ContainsKey(15) << std::endl;  
+        dict.Remove(3);
+        dict.Remove(5);
 
-        
+        dict.getTree().traverse();      
     }
 
    /*
