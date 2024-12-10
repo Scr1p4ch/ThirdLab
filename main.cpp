@@ -99,7 +99,10 @@ int main() {
         dict.Remove(5);
 
         dict.getTree().traverse();
+        
    }  
+    int a;
+   std::cin >> a;
 
    /*
    {

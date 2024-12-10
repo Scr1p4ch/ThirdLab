@@ -16,6 +16,7 @@ enum class flagsToReturn : char {
 };
 
 
+
 template <typename TKey, typename TElement>
 class bTreeForDict {
 private:
@@ -65,6 +66,58 @@ public:
         if (!x->leaf) {
             traverse(x->child[i]);
         }
+    }
+
+
+    class Iterator {
+    private:
+        using Node = typename bTreeForDict<TKey, TElement>::BNode<SimplePair<TKey, TElement>>;
+        const bTreeForDict* tree; // Указатель на дерево
+        std::stack<std::pair<Node*, unsigned>> stack; // Стек для обхода
+
+        void pushLeft(Node* node) {
+            while (node) {
+                stack.push({node, 0}); // Пушим текущую ноду с индексом 0
+                if (node->leaf) break;
+                node = node->child[0]; // Идем в самый левый дочерний элемент
+            }
+        }
+
+    public:
+        Iterator(const bTreeForDict* tree) : tree(tree) {
+            if (tree->root) {
+                pushLeft(tree->root);
+            }
+        }
+
+        bool hasNext() const {
+            return !stack.empty();
+        }
+
+        SimplePair<TKey, TElement> next() {
+            if (!hasNext()) {
+                throw std::out_of_range("Iterator has no more elements");
+            }
+
+            auto [node, index] = stack.top();
+            stack.pop();
+
+            SimplePair<TKey, TElement> result = node->key[index];
+
+            if (index + 1 < node->size) {
+                stack.push({node, index + 1}); // Сохраняем следующий ключ в текущей ноде
+            }
+
+            if (!node->leaf) {
+                pushLeft(node->child[index + 1]); // Идем в следующий дочерний узел
+            }
+
+            return result;
+        }
+    };
+
+    Iterator begin() const {
+        return Iterator(this);
     }
 
 private:
@@ -366,6 +419,7 @@ flagsToReturn bTreeForDict<TKey, TElement>::fixChildSize(BNode<SimplePair<TKey, 
 
     return flagsToReturn::NOT_MODIFIED;
 };
+
 
 
 

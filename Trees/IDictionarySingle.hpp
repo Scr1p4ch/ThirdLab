@@ -23,7 +23,7 @@ public:
     }
 
     TElement& Get(TKey key) {
-        return tree.searchKey(key);;
+        return tree.searchKey(key);
     }
 
     TElement& operator[](TKey key) {
