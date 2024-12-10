@@ -2,6 +2,7 @@
 #define _UTILITY_SIMPLE_PAIR_HPP_
 
 #include <concepts>
+#include <iostream>
 #include "../FirstLabUtility/Move.h"
 
 template <typename T1, typename T2, typename Other1, typename Other2>
@@ -83,9 +84,7 @@ public:
     const T2& GetElem() const {
         return second;
     }
-
-
-private:
+public:
     T1 first;
     T2 second;
 };
@@ -94,5 +93,11 @@ private:
 template <class T1, class T2>
     SimplePair(T1, T2) -> SimplePair<T1, T2>;
 
+template <typename TKey, typename TElem>
+std::ostream& operator<<(std::ostream& out, const SimplePair<TKey, TElem>& pair) {
+    out << '(' << pair.first << "; " << pair.second << ')';
+
+    return out;
+}
 
 #endif

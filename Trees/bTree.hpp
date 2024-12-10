@@ -28,10 +28,16 @@ private:
     BNode<T>* root = nullptr;
     int (*comparator)(const T&, const T&) = 0;
     unsigned minDegree = 0u;
+    int sizeOfTree = 0;
+
 public:
     BTree(unsigned, int (*)(const T &, const T &));
 
     ~BTree();
+
+    inline int GetSize() const {
+        return sizeOfTree;
+    }
 
     void insert(T);
 
@@ -120,14 +126,17 @@ void BTree<T>::insert(T k) {
         curr = curr->child[index];
     }
 
+    ++sizeOfTree;
     nodeInsert(curr, k);
     
 }
 
 
+
 template <typename T>
 T BTree<T>::remove(T k) {
     BNode<T>* curr = root;
+    --sizeOfTree;
     while(true) {
         unsigned i = findIndex(curr, k);
 

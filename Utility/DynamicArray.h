@@ -15,11 +15,31 @@ public:
 
     DynamicArray(int _size) : size(_size), ptr(new T[size]), current(-1) {}
 
-    DynamicArray(const DynamicArray & other) : size(other.size), ptr(new T[size]), current(other.current) {
+    /*DynamicArray(const DynamicArray & other) : size(other.size), ptr(new T[size]), current(other.current) {
         for (int i = 0; i < size; ++i) {
             ptr[i] = other.ptr[i];
         }
-    } 
+    }*/ 
+
+   DynamicArray(const DynamicArray & other) {
+        size = other.size;
+        ptr = PtrWrapper<T[]>(new T[size]);
+        for (int i = 0; i < size; ++i) {
+            ptr[i] = other.ptr[i];
+        }
+   }
+
+    DynamicArray& operator=(const DynamicArray& other) {
+    if (this != &other) {
+        size = other.size;
+        ptr = PtrWrapper<T[]>(new T[size]);
+        for (int i = 0; i < size; ++i) {
+            ptr[i] = other.ptr[i];
+        }
+    }
+    return *this;
+}
+
 
     ~DynamicArray() = default;
 
@@ -31,6 +51,10 @@ public:
             current = idx;
         }
 
+        return ptr[idx];
+    }
+
+    const T& operator[](int idx) const {
         return ptr[idx];
     }
 

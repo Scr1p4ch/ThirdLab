@@ -2,6 +2,7 @@
 #define _SEQUENCE_H_
 
 #include "DynamicArray.h"
+#include <iostream>
 #include <stdexcept>
 
 template <typename T>
@@ -81,8 +82,20 @@ public:
         arr[idx_1] = Move(arr[idx_2]);
         arr[idx_2] = Move(tmp);
     }
+
+    template <typename U>
+    friend std::ostream& operator<<(std::ostream& out, const ArraySequence<U>& arr);
 };
 
+template <typename T>
+std::ostream& operator<<(std::ostream& out, const ArraySequence<T>& arr) {
+    out << "[";
+    for (int i = 0; i < arr.getSize(); ++i) {
+        out << arr[i] << ", ";
+    }
+    out << "]";
+    return out;
+}
 
 
 #endif

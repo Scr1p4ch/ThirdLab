@@ -3,6 +3,7 @@
 
 #include "../Utility/Sequence.h"
 
+
 template <typename T>
 class Sorter {
 public:
