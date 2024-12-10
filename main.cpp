@@ -71,7 +71,7 @@ int main() {
         
     }*/
 
-   {
+   /*{
         //IDictionary<int, int> dict(4u, pairIntCompareFunc<int>);
         IDictionary<int, int> dict(15);
         std::cout << dict.GetCount() << std::endl;
@@ -97,8 +97,23 @@ int main() {
         dict.Remove(3);
         dict.Remove(5);
 
-        dict.getTree().traverse();      
+        dict.getTree().traverse();
+   }*/
+
+  {
+    bTreeForDict<int, double> tree(4);
+    
+    for (int i = 0; i < 100; ++i) {
+        tree.insert({i, 1.0 * i / 13 + 100});
     }
+    
+    auto it = tree.begin();
+    while (it.hasNext()) {
+        auto pair = it.next();
+        std::cout << pair.first << ": " << pair.second << std::endl;
+    }
+  }
+        
 
    /*
    {

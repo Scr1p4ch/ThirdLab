@@ -7,6 +7,7 @@
 #include "../Utility/SimplePair.hpp"
 #include "TypeFunctor.hpp"
 #include <functional>
+#include <stack>
 
 enum class flagsToReturn : char {
     NOT_MODIFIED,
@@ -20,12 +21,10 @@ class bTreeForDict {
 private:
     template <typename U1 = TKey, typename U2 = TElement>
     struct BNode {
-        BNode<SimplePair<TKey, TElement>>** child;
-        SimplePair<TKey, TElement>* key;
-        unsigned int size;
-        bool leaf;
-
-        BNode() : child(nullptr), key(nullptr), size(0u), leaf(false) {}
+        DynamicArray<BNode<SimplePair<TKey, TElement>>*> child;
+        DynamicArray<SimplePair<TKey, TElement>> key;
+        unsigned int size = 0u;
+        bool leaf = false;
     };
 
     BNode<SimplePair<TKey, TElement>>* root = nullptr;
@@ -66,6 +65,58 @@ public:
         if (!x->leaf) {
             traverse(x->child[i]);
         }
+    }
+
+
+    class Iterator {
+    private:
+        using Node = typename bTreeForDict<TKey, TElement>::BNode<SimplePair<TKey, TElement>>;
+        const bTreeForDict* tree; // Указатель на дерево
+        std::stack<std::pair<Node*, unsigned>> stack; // Стек для обхода
+
+        void pushLeft(Node* node) {
+            while (node) {
+                stack.push({node, 0}); // Пушим текущую ноду с индексом 0
+                if (node->leaf) break;
+                node = node->child[0]; // Идем в самый левый дочерний элемент
+            }
+        }
+
+    public:
+        Iterator(const bTreeForDict* tree) : tree(tree) {
+            if (tree->root) {
+                pushLeft(tree->root);
+            }
+        }
+
+        bool hasNext() const {
+            return !stack.empty();
+        }
+
+        SimplePair<TKey, TElement> next() {
+            if (!hasNext()) {
+                throw std::out_of_range("Iterator has no more elements");
+            }
+
+            auto [node, index] = stack.top();
+            stack.pop();
+
+            SimplePair<TKey, TElement> result = node->key[index];
+
+            if (index + 1 < node->size) {
+                stack.push({node, index + 1}); // Сохраняем следующий ключ в текущей ноде
+            }
+
+            if (!node->leaf) {
+                pushLeft(node->child[index + 1]); // Идем в следующий дочерний узел
+            }
+
+            return result;
+        }
+    };
+
+    Iterator begin() const {
+        return Iterator(this);
     }
 
 private:
@@ -229,8 +280,8 @@ TElement bTreeForDict<TKey, TElement>::searchKey(TKey k) {
 template <typename TKey, typename TElement>
 void bTreeForDict<TKey, TElement>::initializeNode(BNode<SimplePair<TKey, TElement>>* x) {
     x->size = 0;
-    x->key = new SimplePair<TKey, TElement>[2 * minDegree - 1];
-    x->child = new BNode<SimplePair<TKey, TElement>>*[2 * minDegree];
+    x->key = DynamicArray<SimplePair<TKey, TElement>>(2 * minDegree - 1);
+    x->child = DynamicArray<BNode<SimplePair<TKey, TElement>>*>(2 * minDegree);
 }
 
 template <typename TKey, typename TElement>
@@ -240,8 +291,6 @@ void bTreeForDict<TKey, TElement>::freeNode(BNode<SimplePair<TKey, TElement>>* x
             freeNode(x->child[i]);
         }
     }
-    delete[] x->child;
-    delete[] x->key;
     delete x;
 }
 
@@ -323,14 +372,10 @@ flagsToReturn bTreeForDict<TKey, TElement>::mergeChildren(BNode<SimplePair<TKey,
     leftKid->size += rightKid->size;
     leftKid->child[leftKid->size] = rightKid->child[rightKid->size];
 
-    delete[] rightKid->child;
-    delete[] rightKid->key;
     delete rightKid;
 
     if (parent->size == 0) {
         root = leftKid;
-        delete[] parent->child;
-        delete[] parent->key;
         delete parent;
         return flagsToReturn::NEW_ROOT;
     }
@@ -373,5 +418,8 @@ flagsToReturn bTreeForDict<TKey, TElement>::fixChildSize(BNode<SimplePair<TKey, 
 
     return flagsToReturn::NOT_MODIFIED;
 };
+
+
+
 
 #endif
