@@ -48,7 +48,7 @@ public:
 
     SimplePair<typename bTreeForDict<TKey, TElement>::BNode<SimplePair<TKey, TElement>>*, unsigned> search(TKey);
 
-    TElement searchKey(TKey);
+    TElement& searchKey(TKey);
 
     void traverse(BNode<SimplePair<TKey, TElement>>* x = nullptr) {
         unsigned int i;
@@ -65,58 +65,6 @@ public:
         if (!x->leaf) {
             traverse(x->child[i]);
         }
-    }
-
-
-    class Iterator {
-    private:
-        using Node = typename bTreeForDict<TKey, TElement>::BNode<SimplePair<TKey, TElement>>;
-        const bTreeForDict* tree; // Указатель на дерево
-        std::stack<std::pair<Node*, unsigned>> stack; // Стек для обхода
-
-        void pushLeft(Node* node) {
-            while (node) {
-                stack.push({node, 0}); // Пушим текущую ноду с индексом 0
-                if (node->leaf) break;
-                node = node->child[0]; // Идем в самый левый дочерний элемент
-            }
-        }
-
-    public:
-        Iterator(const bTreeForDict* tree) : tree(tree) {
-            if (tree->root) {
-                pushLeft(tree->root);
-            }
-        }
-
-        bool hasNext() const {
-            return !stack.empty();
-        }
-
-        SimplePair<TKey, TElement> next() {
-            if (!hasNext()) {
-                throw std::out_of_range("Iterator has no more elements");
-            }
-
-            auto [node, index] = stack.top();
-            stack.pop();
-
-            SimplePair<TKey, TElement> result = node->key[index];
-
-            if (index + 1 < node->size) {
-                stack.push({node, index + 1}); // Сохраняем следующий ключ в текущей ноде
-            }
-
-            if (!node->leaf) {
-                pushLeft(node->child[index + 1]); // Идем в следующий дочерний узел
-            }
-
-            return result;
-        }
-    };
-
-    Iterator begin() const {
-        return Iterator(this);
     }
 
 private:
@@ -269,7 +217,7 @@ SimplePair<typename bTreeForDict<TKey, TElement>::BNode<SimplePair<TKey, TElemen
 }
 
 template <typename TKey, typename TElement>
-TElement bTreeForDict<TKey, TElement>::searchKey(TKey k) {
+TElement& bTreeForDict<TKey, TElement>::searchKey(TKey k) {
     SimplePair<BNode<SimplePair<TKey, TElement>>*, unsigned> node = search(k);
     if (node.first == nullptr) {
         throw std::invalid_argument ("SearchKey: invalid key");
@@ -418,7 +366,6 @@ flagsToReturn bTreeForDict<TKey, TElement>::fixChildSize(BNode<SimplePair<TKey, 
 
     return flagsToReturn::NOT_MODIFIED;
 };
-
 
 
 

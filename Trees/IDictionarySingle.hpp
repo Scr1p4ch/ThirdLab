@@ -8,7 +8,7 @@
 #include "bTreeForDict.hpp"
 #include "TypeFunctor.hpp"
 
-const unsigned minimumDegree = 50;
+const unsigned minimumDegree = 30;
 
 template <typename TKey, typename TElement>
 class IDictionary {
@@ -16,15 +16,18 @@ private:
     bTreeForDict<TKey, TElement> tree;
 
 public:
-    IDictionary(unsigned minDegree, std::function<int(const TKey&, const TKey&)> compare = TypeFunctor<TKey>{}) : tree(minDegree, compare) {}
+    IDictionary(unsigned minDegree = minimumDegree, std::function<int(const TKey&, const TKey&)> compare = TypeFunctor<TKey>{}) : tree(minDegree, compare) {}
 
     int GetCount() const {
         return tree.GetSize();
     }
 
-    TElement Get(TKey key) {
-        TKey a = tree.searchKey(key);
-        return a;
+    TElement& Get(TKey key) {
+        return tree.searchKey(key);;
+    }
+
+    TElement& operator[](TKey key) {
+        return tree.searchKey(key);
     }
 
     bool ContainsKey(TKey key) {
